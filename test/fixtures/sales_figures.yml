@@ -1,0 +1,35 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  year: 1
+  geo_code: MyString
+  jurisdiction: MyString
+  zipcode: MyString
+  total_sales: 1
+  median_value: 1.5
+  mean_value: 1.5
+  sales_inside_pfa: 1
+  median_value_in_pfa: 1.5
+  mean_value_in_pfa: 1.5
+  sales_outside_pfa: 1
+  median_value_out_pfa: 1.5
+  mean_value_out_pfa: 1.5
+  latitude: 1.5
+  longitude: 1.5
+
+two:
+  year: 1
+  geo_code: MyString
+  jurisdiction: MyString
+  zipcode: MyString
+  total_sales: 1
+  median_value: 1.5
+  mean_value: 1.5
+  sales_inside_pfa: 1
+  median_value_in_pfa: 1.5
+  mean_value_in_pfa: 1.5
+  sales_outside_pfa: 1
+  median_value_out_pfa: 1.5
+  mean_value_out_pfa: 1.5
+  latitude: 1.5
+  longitude: 1.5
