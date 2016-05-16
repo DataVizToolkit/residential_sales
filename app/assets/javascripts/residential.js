@@ -195,7 +195,9 @@ function makeScatter() {
     svg.selectAll(".dot")
         .data(data)
       .enter().append("circle")
-        .attr("class", "dot")
+        .attr("class", function(d) {
+          return "dot " + cValue(d).replace(/\W+/g, "");
+        })
         .attr("r", 3.5)
         .attr("cx", xMap)
         .attr("cy", yMap)
@@ -233,7 +235,15 @@ function makeScatter() {
         .attr("y", height + margin.top)
         .attr("width", 18)
         .attr("height", 18)
-        .style("fill", color);
+        .style("fill", color)
+        .on("mouseover", function(d, i) {
+          name = d.replace(/\W+/g, "")
+          $('.dot').hide();
+          $('.' + name).show();
+        })
+        .on("mouseout", function(d, i) {
+          $('.dot').show(1);
+        });
 
     // draw legend text
     legend.append("text")
