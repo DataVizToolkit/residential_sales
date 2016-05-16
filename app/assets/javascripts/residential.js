@@ -254,3 +254,107 @@ function makeScatter() {
         .text(function(d) { return d; })
   });
 }
+
+// Returns a function to compute the interquartile range.
+function iqr(k) {
+  return function(d, i) {
+    var q1 = d.quartiles[0],
+        q3 = d.quartiles[2],
+        iqr = (q3 - q1) * k,
+        i = -1,
+        j = d.length;
+    while (d[++i] < q1 - iqr);
+    while (d[--j] > q3 + iqr);
+    return [i, j];
+  };
+}
+function makeBoxplot() {
+  // From: http://bl.ocks.org/mbostock/4061502
+  // From: http://bl.ocks.org/jensgrubert/7789216
+  var margin = {top: 30, right: 50, bottom: 95, left: 50},
+      width  = 900 - margin.left - margin.right;
+      height = 450 - margin.top - margin.bottom,
+      min    = Infinity,
+      max    = -Infinity,
+      labels = false; // show the text labels beside individual boxplots?
+
+  $.getJSON('/residential/scatter_data', function(d) {
+    // map-reduce (transform) the data!
+    // Create arrays of median values for each jurisdiction
+    data = d.scatter_data.reduce(function(accum, obj) {
+      indices = accum.map(function(arr) { return arr[0]; });
+      idx = indices.indexOf(obj.jurisdiction);
+      if (idx > -1) {
+        accum[idx][1].push(obj.median_value);
+      } else {
+        accum.push([obj.jurisdiction, [obj.median_value]]);
+      }
+      if (obj.median_value > max) { max = obj.median_value; }
+      if (obj.median_value < min) { min = obj.median_value; }
+      return accum;
+    }, []);
+
+    var chart = d3.box()
+      .whiskers(iqr(1.5))
+      .height(height)
+      .domain([min, max])
+      .showLabels(labels);
+
+    var svg = d3.select("#chart").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .attr("class", "box")
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // the x-axis
+    var x = d3.scale.ordinal()
+      .domain( data.map(function(d) { return d[0] } ) )
+      .rangeRoundBands([0 , width], 0.7, 0.3);
+
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+    // the y-axis
+    var y = d3.scale.linear()
+      .domain([min, max])
+      .range([height + margin.top, 0 + margin.top]);
+
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
+
+    // draw the boxplots
+    svg.selectAll(".box")
+        .data(data)
+      .enter().append("g")
+      .attr("transform", function(d) { return "translate(" +  x(d[0])  + "," + margin.top + ")"; } )
+        .call(chart.width(x.rangeBand()));
+
+    // add a title
+    svg.append("text")
+       .attr("x", (width / 2))
+       .attr("y", 0 + (margin.top / 2))
+       .attr("text-anchor", "middle")
+       .style("font-size", "18px")
+       //.style("text-decoration", "underline")
+       .text("Median Home Sale Value By Jurisdiction");
+
+    // draw y axis
+    svg.append("g")
+       .attr("class", "y axis")
+       .call(yAxis);
+
+    // draw x axis
+    svg.append("g")
+       .attr("class", "x axis")
+       .attr("transform", "translate(0," + (height  + margin.top) + ")")
+       .call(xAxis)
+     .selectAll("text")
+       .attr("x", -5)
+       .attr("y", 5)
+       .style("text-anchor", "end")
+       .attr("transform", "rotate(-45)");
+  });
+}

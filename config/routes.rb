@@ -8,4 +8,6 @@ Rails.application.routes.draw do
 
   get 'residential/scatter_chart'
   get 'residential/scatter_data', :defaults => { :format => 'json' }
+
+  get 'residential/boxplot'
 end
