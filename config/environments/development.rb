@@ -38,4 +38,17 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # LogRage
+  config.lograge.enabled = true
+  config.lograge.custom_options = lambda do |event|
+    params = event.payload[:params].reject do |k|
+      ['controller', 'action', 'format'].include? k
+    end
+
+    {
+      :params => params,
+      :time   => event.time.xmlschema
+    }
+  end
 end

@@ -76,4 +76,17 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # LogRage
+  config.lograge.enabled = true
+  config.lograge.custom_options = lambda do |event|
+    params = event.payload[:params].reject do |k|
+      ['controller', 'action', 'format'].include? k
+    end
+
+    {
+      :params => params,
+      :time   => event.time.xmlschema
+    }
+  end
 end
