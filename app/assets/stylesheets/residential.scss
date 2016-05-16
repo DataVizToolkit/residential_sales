@@ -15,3 +15,24 @@ g.arc {
     opacity: .55;
   }
 }
+
+// Bar Chart
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+  &:hover {
+    opacity: .85;
+  }
+}
+
+.x.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
