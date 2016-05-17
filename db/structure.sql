@@ -27,6 +27,20 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
+--
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
+
+
 SET search_path = public, pg_catalog;
 
 --
@@ -103,10 +117,52 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: zipcodes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE zipcodes (
+    gid integer NOT NULL,
+    statefp10 character varying(2),
+    zcta5ce10 character varying(5),
+    geoid10 character varying(7),
+    classfp10 character varying(2),
+    mtfcc10 character varying(5),
+    funcstat10 character varying(1),
+    geom geometry(MultiPolygon,4326)
+);
+
+
+--
+-- Name: zipcodes_gid_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE zipcodes_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: zipcodes_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE zipcodes_gid_seq OWNED BY zipcodes.gid;
+
+
+--
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sales_figures ALTER COLUMN id SET DEFAULT nextval('sales_figures_id_seq'::regclass);
+
+
+--
+-- Name: gid; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY zipcodes ALTER COLUMN gid SET DEFAULT nextval('zipcodes_gid_seq'::regclass);
 
 
 --
@@ -115,6 +171,14 @@ ALTER TABLE ONLY sales_figures ALTER COLUMN id SET DEFAULT nextval('sales_figure
 
 ALTER TABLE ONLY sales_figures
     ADD CONSTRAINT sales_figures_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: zipcodes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY zipcodes
+    ADD CONSTRAINT zipcodes_pkey PRIMARY KEY (gid);
 
 
 --

@@ -1,0 +1,30 @@
+// Place all the styles related to the map controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+body {
+  margin: 0;
+  padding: 0;
+}
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 600px;
+}
+.map-legend ul {
+  list-style: none;
+  padding-left: 0;
+}
+.map-legend .swatch {
+  width: 20px;
+  height: 20px;
+  float: left;
+  margin-right: 10px;
+}
+.leaflet-popup-close-button {
+  display: none;
+}
+.leaflet-popup-content-wrapper {
+  pointer-events: none;
+}
