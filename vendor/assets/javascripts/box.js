@@ -1,5 +1,10 @@
 (function() {
 
+function d3_functor(v) {
+  return typeof v === "function" ? v : function() { return v; };
+}
+d3.functor = d3_functor;
+
 // Inspired by http://informationandvisualization.de/blog/box-plot
 d3.box = function() {
   var width = 1,
@@ -38,12 +43,12 @@ d3.box = function() {
           : d3.range(n);
 
       // Compute the new x-scale.
-      var x1 = d3.scale.linear()
+      var x1 = d3.scaleLinear()
           .domain(domain && domain.call(this, d, i) || [min, max])
           .range([height, 0]);
 
       // Retrieve the old x-scale, if this is an update.
-      var x0 = this.__chart__ || d3.scale.linear()
+      var x0 = this.__chart__ || d3.scaleLinear()
           .domain([0, Infinity])
 		 // .domain([0, max])
           .range(x1.range());
@@ -239,7 +244,7 @@ d3.box = function() {
           .style("opacity", 1e-6)
           .remove();
     });
-    d3.timer.flush();
+    d3.timerFlush();
   }
 
   box.width = function(x) {

@@ -6,15 +6,15 @@ function makePie() {
       radius = Math.min(width, height) / 2;
 
   var totals = {};
-  var color  = d3.scale.category20b();
+  var color  = d3.scaleOrdinal(d3.schemeCategory20b);
 
   // variable for pie pieces
-  var arc = d3.svg.arc()
+  var arc = d3.arc()
       .outerRadius(radius - 10)
       .innerRadius(0);
 
   // D3 provides a helper function for creating the pie and slices
-  var pie = d3.layout.pie()
+  var pie = d3.pie()
       .sort(null)
       .value(function(d) { return totals[d]; });
 
@@ -49,7 +49,7 @@ function makePie() {
         .style("fill", function(d) { return color(d.data); });
 
     // put the labels outside the pie (in a new arc/circle)
-    var pos = d3.svg.arc().innerRadius(radius + 20).outerRadius(radius + 20);
+    var pos = d3.arc().innerRadius(radius + 20).outerRadius(radius + 20);
     g.append("text")
         .attr("transform", function(d) {
           return "translate(" + pos.centroid(d) + ")";
@@ -67,14 +67,14 @@ function makeBar() {
       height = 500 - margin.top - margin.bottom;
 
   var xValue = function(d) { return d.zipcode; },                  // data -> value
-      xScale = d3.scale.ordinal().rangeRoundBands([0, width], .1), // value -> display
+      xScale = d3.scaleBand().range([0, width]).padding([0.25]), // value -> display
       xMap   = function(d) { return xScale(xValue(d)); },          // data -> display
-      xAxis  = d3.svg.axis().scale(xScale).orient("bottom");
+      xAxis  = d3.axisBottom(xScale);
 
   var yValue = function(d) { return d.median_value; },    // data -> value
-      yScale = d3.scale.linear().range([height, 0]),      // value -> display
+      yScale = d3.scaleLinear().range([height, 0]),      // value -> display
       yMap   = function(d) { return yScale(yValue(d)); }, // data -> display
-      yAxis  = d3.svg.axis().scale(yScale).orient("left");
+      yAxis  = d3.axisLeft(yScale);
 
   var svg = d3.select("#chart").append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -113,7 +113,7 @@ function makeBar() {
         .attr("class", "bar")
        .style("fill", "blue")
         .attr("x", xMap)
-        .attr("width", xScale.rangeBand)
+        .attr("width", xScale.bandwidth)
         .attr("y", yMap)
         .attr("height", function(d) { return height - yMap(d); });
   });
@@ -121,7 +121,7 @@ function makeBar() {
 
 function makeScatter() {
   // From http://bl.ocks.org/weiglemc/6185069
-  var margin = {top: 20, right: 20, bottom: 100, left: 150},
+  var margin = {top: 20, right: 20, bottom: 100, left: 75},
       width  = 960,
       height = 500 - margin.top - margin.bottom;
 
@@ -134,19 +134,19 @@ function makeScatter() {
 
   // setup x
   var xValue = function(d) { return +d.total_sales;},     // data -> value
-      xScale = d3.scale.linear().range([0, width]),      // value -> display
+      xScale = d3.scaleLinear().range([0, width]),      // value -> display
       xMap   = function(d) { return xScale(xValue(d));}, // data -> display
-      xAxis  = d3.svg.axis().scale(xScale).orient("bottom");
+      xAxis  = d3.axisBottom(xScale);
 
   // setup y
   var yValue = function(d) { return +d.pmt;},    // data -> value
-      yScale = d3.scale.linear().range([height, 0]),     // value -> display
+      yScale = d3.scaleLinear().range([height, 0]),     // value -> display
       yMap   = function(d) { return yScale(yValue(d));}, // data -> display
-      yAxis  = d3.svg.axis().scale(yScale).orient("left");
+      yAxis  = d3.axisLeft(yScale);
 
   // setup fill color
   var cValue = function(d) { return d.jurisdiction;},
-      color  = d3.scale.category20b();
+      color  = d3.scaleOrdinal(d3.schemeCategory20b);
 
   // add the graph canvas to the body of the webpage
   var svg = d3.select("#chart").append("svg")
@@ -284,13 +284,14 @@ function makeBoxplot() {
     data = d.scatter_data.reduce(function(accum, obj) {
       indices = accum.map(function(arr) { return arr[0]; });
       idx = indices.indexOf(obj.jurisdiction);
+      value = +obj.median_value;
       if (idx > -1) {
-        accum[idx][1].push(obj.median_value);
+        accum[idx][1].push(value);
       } else {
-        accum.push([obj.jurisdiction, [obj.median_value]]);
+        accum.push([obj.jurisdiction, [value]]);
       }
-      if (obj.median_value > max) { max = obj.median_value; }
-      if (obj.median_value < min) { min = obj.median_value; }
+      if (value > max) { max = value; }
+      if (value < min) { min = value; }
       return accum;
     }, []);
 
@@ -308,29 +309,24 @@ function makeBoxplot() {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // the x-axis
-    var x = d3.scale.ordinal()
-      .domain( data.map(function(d) { return d[0] } ) )
-      .rangeRoundBands([0 , width], 0.7, 0.3);
-
-    var xAxis = d3.svg.axis()
-      .scale(x)
-      .orient("bottom");
+    var counties = data.map(function(d) { return d[0] } );
+    var x = d3.scaleBand()
+      .domain(counties)
+      .range([0, width]);
+    var xAxis = d3.axisBottom(x);
 
     // the y-axis
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
       .domain([min, max])
       .range([height + margin.top, 0 + margin.top]);
-
-    var yAxis = d3.svg.axis()
-      .scale(y)
-      .orient("left");
+    var yAxis = d3.axisLeft(y);
 
     // draw the boxplots
     svg.selectAll(".box")
         .data(data)
       .enter().append("g")
       .attr("transform", function(d) { return "translate(" +  x(d[0])  + "," + margin.top + ")"; } )
-        .call(chart.width(x.rangeBand()));
+        .call(chart.width(x.bandwidth() / 3));
 
     // add a title
     svg.append("text")
