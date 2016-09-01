@@ -18,17 +18,17 @@ function makePie() {
       .sort(null)
       .value(function(d) { return totals[d]; });
 
-  // add the pie chart to the page
+  // Add an SVG element to the page and append a G element for the pie
   var svg = d3.select("body").append("svg")
       .attr("width", width)
       .attr("height", height)
     .append("g")
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+      .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
 
   // fetch the data
   $.getJSON('/residential/data', function(data) {
     totals = data.totals;
-    // make each pie piece
+    // enter is how we tell D3 to generare the SVG elements for the data
     var g = svg.selectAll(".arc")
         .data(pie(d3.keys(totals)))
       .enter().append("g")
@@ -49,7 +49,9 @@ function makePie() {
         .style("fill", function(d) { return color(d.data); });
 
     // put the labels outside the pie (in a new arc/circle)
-    var pos = d3.svg.arc().innerRadius(radius + 20).outerRadius(radius + 20);
+    var pos = d3.svg.arc()
+        .innerRadius(radius + 20)
+        .outerRadius(radius + 20);
     g.append("text")
         .attr("transform", function(d) {
           return "translate(" + pos.centroid(d) + ")";
@@ -330,8 +332,10 @@ function makeBoxplot() {
     svg.selectAll(".box")
         .data(data)
       .enter().append("g")
-      .attr("transform", function(d) { return "translate(" +  x(d[0])  + "," + margin.top + ")"; } )
-        .call(chart.width(x.rangeBand()));
+      .attr("transform", function(d) {
+        return "translate(" +  x(d[0])  + "," + margin.top + ")";
+      })
+      .call(chart.width(x.rangeBand()));
 
     // add a title
     svg.append("text")

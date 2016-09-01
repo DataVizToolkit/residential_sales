@@ -20,8 +20,10 @@ function makeMap() {
     var layer = e.target;
 
     popup.setLatLng(e.latlng);
-    popup.setContent('<div class="marker-title">Zipcode: ' + layer.feature.properties.zipcode + '</div>' +
-        'Median value: $' + layer.feature.properties.median_value);
+    popup.setContent(
+      '<div class="marker-title">Zipcode: ' +
+      layer.feature.properties.zipcode + '</div>' +
+      'Median value: $' + layer.feature.properties.median_value);
 
     if (!popup._map) popup.openOn(map);
     window.clearTimeout(closeTooltip);
